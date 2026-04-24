@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "CondoOS — Gestão Condominial"
+version = "1.0.0"
+id = "artifacts/condo-saas"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20078
+
+[services.development]
+run = "pnpm --filter @workspace/condo-saas run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/condo-saas", "run", "build" ]
+publicDir = "artifacts/condo-saas/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20078"
+BASE_PATH = "/"

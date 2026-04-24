@@ -1,8 +1,47 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import authRouter from "./auth";
+import condominiumRouter from "./condominium";
+import usersRouter from "./users";
+import rolesRouter from "./roles";
+import dashboardRouter from "./dashboard";
+import unitsRouter from "./units";
+import residentsRouter from "./residents";
+import chargesRouter, { paymentsRouter } from "./charges";
+import noticesRouter from "./notices";
+import issuesRouter from "./issues";
+import deliveriesRouter from "./deliveries";
+import vehiclesRouter from "./vehicles";
+import reservationsRouter from "./reservations";
+import documentsRouter from "./documents";
+import servicesRouter from "./services";
+import suppliersRouter from "./suppliers";
+import contractsRouter from "./contracts";
+import eventsRouter from "./events";
+import logsRouter from "./logs";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
+router.use(condominiumRouter);
+router.use(usersRouter);
+router.use(rolesRouter);
+router.use(dashboardRouter);
+router.use(unitsRouter);
+router.use(residentsRouter);
+router.use(chargesRouter);
+router.use(paymentsRouter);
+router.use(noticesRouter);
+router.use(issuesRouter);
+router.use(deliveriesRouter);
+router.use(vehiclesRouter);
+router.use(reservationsRouter);
+router.use(documentsRouter);
+router.use(servicesRouter);
+router.use(suppliersRouter);
+router.use(contractsRouter);
+router.use(eventsRouter);
+router.use(logsRouter);
 
 export default router;

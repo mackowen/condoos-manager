@@ -3,34 +3,1622 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: CondoOS — Multi-tenant condominium management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: condominiums
+  - name: users
+  - name: roles
+  - name: dashboard
+  - name: residents
+  - name: units
+  - name: charges
+  - name: payments
+  - name: notices
+  - name: issues
+  - name: deliveries
+  - name: vehicles
+  - name: reservations
+  - name: documents
+  - name: services
+  - name: suppliers
+  - name: contracts
+  - name: events
+  - name: logs
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
-          description: Healthy
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+
+  # ---------------- AUTH ----------------
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResponse" }
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Create a new condominium with its first admin user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegisterInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResponse" }
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Current authenticated user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MeResponse" }
+
+  # ---------------- CONDOMINIUMS ----------------
+  /condominiums/current:
+    get:
+      operationId: getCurrentCondominium
+      tags: [condominiums]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Condominium" }
+    patch:
+      operationId: updateCurrentCondominium
+      tags: [condominiums]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateCondominiumInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Condominium" }
+
+  # ---------------- USERS ----------------
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      parameters:
+        - { in: query, name: search, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HealthStatus"
+                type: array
+                items: { $ref: "#/components/schemas/User" }
+    post:
+      operationId: createUser
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateUserInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+  /users/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateUser
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateUserInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- ROLES ----------------
+  /roles:
+    get:
+      operationId: listRoles
+      tags: [roles]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Role" }
+    post:
+      operationId: createRole
+      tags: [roles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateRoleInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+  /roles/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateRole
+      tags: [roles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateRoleInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+    delete:
+      operationId: deleteRole
+      tags: [roles]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- DASHBOARD ----------------
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardSummary" }
+  /dashboard/cashflow:
+    get:
+      operationId: getCashflow
+      tags: [dashboard]
+      parameters:
+        - { in: query, name: months, schema: { type: integer, default: 6 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CashflowPoint" }
+  /dashboard/delinquency-ranking:
+    get:
+      operationId: getDelinquencyRanking
+      tags: [dashboard]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DelinquencyEntry" }
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ActivityLog" }
+  /dashboard/alerts:
+    get:
+      operationId: getAlerts
+      tags: [dashboard]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AlertItem" }
+  /dashboard/global-search:
+    get:
+      operationId: globalSearch
+      tags: [dashboard]
+      parameters:
+        - { in: query, name: q, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GlobalSearchResult" }
+
+  # ---------------- UNITS ----------------
+  /units:
+    get:
+      operationId: listUnits
+      tags: [units]
+      parameters:
+        - { in: query, name: search, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Unit" }
+    post:
+      operationId: createUnit
+      tags: [units]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateUnitInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Unit" }
+  /units/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    get:
+      operationId: getUnit
+      tags: [units]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Unit" }
+    patch:
+      operationId: updateUnit
+      tags: [units]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateUnitInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Unit" }
+    delete:
+      operationId: deleteUnit
+      tags: [units]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- RESIDENTS ----------------
+  /residents:
+    get:
+      operationId: listResidents
+      tags: [residents]
+      parameters:
+        - { in: query, name: search, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Resident" }
+    post:
+      operationId: createResident
+      tags: [residents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateResidentInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Resident" }
+  /residents/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateResident
+      tags: [residents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateResidentInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Resident" }
+    delete:
+      operationId: deleteResident
+      tags: [residents]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- CHARGES ----------------
+  /charges:
+    get:
+      operationId: listCharges
+      tags: [charges]
+      parameters:
+        - { in: query, name: status, schema: { type: string, enum: [pending, paid, overdue, cancelled] } }
+        - { in: query, name: type, schema: { type: string, enum: [income, expense, fine] } }
+        - { in: query, name: unitId, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Charge" }
+    post:
+      operationId: createCharge
+      tags: [charges]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateChargeInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Charge" }
+  /charges/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateCharge
+      tags: [charges]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateChargeInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Charge" }
+    delete:
+      operationId: deleteCharge
+      tags: [charges]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+  /charges/{id}/pay:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    post:
+      operationId: payCharge
+      tags: [charges]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PayChargeInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Payment" }
+
+  # ---------------- PAYMENTS ----------------
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Payment" }
+
+  # ---------------- NOTICES ----------------
+  /notices:
+    get:
+      operationId: listNotices
+      tags: [notices]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Notice" }
+    post:
+      operationId: createNotice
+      tags: [notices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateNoticeInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Notice" }
+  /notices/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateNotice
+      tags: [notices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateNoticeInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Notice" }
+    delete:
+      operationId: deleteNotice
+      tags: [notices]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- ISSUES ----------------
+  /issues:
+    get:
+      operationId: listIssues
+      tags: [issues]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Issue" }
+    post:
+      operationId: createIssue
+      tags: [issues]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateIssueInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Issue" }
+  /issues/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateIssue
+      tags: [issues]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateIssueInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Issue" }
+    delete:
+      operationId: deleteIssue
+      tags: [issues]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- DELIVERIES ----------------
+  /deliveries:
+    get:
+      operationId: listDeliveries
+      tags: [deliveries]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Delivery" }
+    post:
+      operationId: createDelivery
+      tags: [deliveries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDeliveryInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Delivery" }
+  /deliveries/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateDelivery
+      tags: [deliveries]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDeliveryInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Delivery" }
+    delete:
+      operationId: deleteDelivery
+      tags: [deliveries]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- VEHICLES ----------------
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [vehicles]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Vehicle" }
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateVehicleInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Vehicle" }
+  /vehicles/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateVehicle
+      tags: [vehicles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateVehicleInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Vehicle" }
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- RESERVATIONS ----------------
+  /reservations:
+    get:
+      operationId: listReservations
+      tags: [reservations]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Reservation" }
+    post:
+      operationId: createReservation
+      tags: [reservations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateReservationInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reservation" }
+  /reservations/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateReservation
+      tags: [reservations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateReservationInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reservation" }
+    delete:
+      operationId: deleteReservation
+      tags: [reservations]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- DOCUMENTS ----------------
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Document" }
+    post:
+      operationId: createDocument
+      tags: [documents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDocumentInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Document" }
+  /documents/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateDocument
+      tags: [documents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateDocumentInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Document" }
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- SERVICE ORDERS ----------------
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ServiceOrder" }
+    post:
+      operationId: createService
+      tags: [services]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateServiceInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceOrder" }
+  /services/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateService
+      tags: [services]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateServiceInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ServiceOrder" }
+    delete:
+      operationId: deleteService
+      tags: [services]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- SUPPLIERS ----------------
+  /suppliers:
+    get:
+      operationId: listSuppliers
+      tags: [suppliers]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Supplier" }
+    post:
+      operationId: createSupplier
+      tags: [suppliers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateSupplierInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Supplier" }
+  /suppliers/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateSupplier
+      tags: [suppliers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateSupplierInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Supplier" }
+    delete:
+      operationId: deleteSupplier
+      tags: [suppliers]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- CONTRACTS ----------------
+  /contracts:
+    get:
+      operationId: listContracts
+      tags: [contracts]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Contract" }
+    post:
+      operationId: createContract
+      tags: [contracts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateContractInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Contract" }
+  /contracts/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateContract
+      tags: [contracts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateContractInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Contract" }
+    delete:
+      operationId: deleteContract
+      tags: [contracts]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- EVENTS / AGENDA ----------------
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/EventItem" }
+    post:
+      operationId: createEvent
+      tags: [events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateEventInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventItem" }
+  /events/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: string } }
+    patch:
+      operationId: updateEvent
+      tags: [events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateEventInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventItem" }
+    delete:
+      operationId: deleteEvent
+      tags: [events]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  # ---------------- LOGS ----------------
+  /logs:
+    get:
+      operationId: listLogs
+      tags: [logs]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ActivityLog" }
+
 components:
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
-          type: string
-      required:
-        - status
+        status: { type: string }
+      required: [status]
+    OkResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+      required: [success]
 
+    LoginInput:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 4 }
+      required: [email, password]
+    RegisterInput:
+      type: object
+      properties:
+        condominiumName: { type: string, minLength: 2 }
+        adminName: { type: string, minLength: 2 }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 6 }
+      required: [condominiumName, adminName, email, password]
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: "#/components/schemas/User" }
+        condominium: { $ref: "#/components/schemas/Condominium" }
+      required: [token, user, condominium]
+    MeResponse:
+      type: object
+      properties:
+        user: { $ref: "#/components/schemas/User" }
+        condominium: { $ref: "#/components/schemas/Condominium" }
+        permissions:
+          type: array
+          items: { type: string }
+      required: [user, condominium, permissions]
+
+    Condominium:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        address: { type: string, nullable: true }
+        cnpj: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        primaryColor: { type: string, nullable: true }
+        finePercent: { type: number }
+        interestPercent: { type: number }
+        modules:
+          type: array
+          items: { type: string }
+        createdAt: { type: string }
+      required: [id, name, finePercent, interestPercent, modules, createdAt]
+    UpdateCondominiumInput:
+      type: object
+      properties:
+        name: { type: string }
+        address: { type: string, nullable: true }
+        cnpj: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        primaryColor: { type: string, nullable: true }
+        finePercent: { type: number }
+        interestPercent: { type: number }
+        modules:
+          type: array
+          items: { type: string }
+
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        email: { type: string }
+        name: { type: string }
+        roleId: { type: string, nullable: true }
+        roleName: { type: string, nullable: true }
+        active: { type: boolean }
+        createdAt: { type: string }
+      required: [id, condominiumId, email, name, active, createdAt]
+    CreateUserInput:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        name: { type: string, minLength: 2 }
+        password: { type: string, minLength: 6 }
+        roleId: { type: string, nullable: true }
+        active: { type: boolean }
+      required: [email, name, password]
+    UpdateUserInput:
+      type: object
+      properties:
+        name: { type: string }
+        roleId: { type: string, nullable: true }
+        active: { type: boolean }
+        password: { type: string, nullable: true }
+
+    Role:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        permissions:
+          type: array
+          items: { type: string }
+        createdAt: { type: string }
+      required: [id, condominiumId, name, permissions, createdAt]
+    CreateRoleInput:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+        permissions:
+          type: array
+          items: { type: string }
+      required: [name, permissions]
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalUnits: { type: integer }
+        totalResidents: { type: integer }
+        totalIncomeMonth: { type: number }
+        totalExpenseMonth: { type: number }
+        balance: { type: number }
+        delinquencyRate: { type: number }
+        delinquentCount: { type: integer }
+        openIssues: { type: integer }
+        upcomingReservations: { type: integer }
+        pendingDeliveries: { type: integer }
+        forecastNextMonth: { type: number }
+        healthScore: { type: integer }
+      required: [totalUnits, totalResidents, totalIncomeMonth, totalExpenseMonth, balance, delinquencyRate, delinquentCount, openIssues, upcomingReservations, pendingDeliveries, forecastNextMonth, healthScore]
+    CashflowPoint:
+      type: object
+      properties:
+        month: { type: string }
+        income: { type: number }
+        expense: { type: number }
+        balance: { type: number }
+      required: [month, income, expense, balance]
+    DelinquencyEntry:
+      type: object
+      properties:
+        unitId: { type: string }
+        unitLabel: { type: string }
+        residentName: { type: string, nullable: true }
+        overdueAmount: { type: number }
+        overdueCount: { type: integer }
+      required: [unitId, unitLabel, overdueAmount, overdueCount]
+    AlertItem:
+      type: object
+      properties:
+        id: { type: string }
+        kind: { type: string, enum: [charge, contract, delinquency] }
+        title: { type: string }
+        description: { type: string }
+        date: { type: string }
+        severity: { type: string, enum: [info, warning, critical] }
+      required: [id, kind, title, description, date, severity]
+    GlobalSearchResult:
+      type: object
+      properties:
+        residents:
+          type: array
+          items: { $ref: "#/components/schemas/Resident" }
+        units:
+          type: array
+          items: { $ref: "#/components/schemas/Unit" }
+        charges:
+          type: array
+          items: { $ref: "#/components/schemas/Charge" }
+      required: [residents, units, charges]
+
+    Unit:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        block: { type: string, nullable: true }
+        number: { type: string }
+        floor: { type: string, nullable: true }
+        type: { type: string, nullable: true }
+        sizeM2: { type: number, nullable: true }
+        parkingSpots: { type: integer }
+        ownerName: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, number, parkingSpots, createdAt]
+    CreateUnitInput:
+      type: object
+      properties:
+        block: { type: string, nullable: true }
+        number: { type: string }
+        floor: { type: string, nullable: true }
+        type: { type: string, nullable: true }
+        sizeM2: { type: number, nullable: true }
+        parkingSpots: { type: integer }
+        ownerName: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+      required: [number, parkingSpots]
+
+    Resident:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        unitId: { type: string, nullable: true }
+        unitLabel: { type: string, nullable: true }
+        name: { type: string }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        document: { type: string, nullable: true }
+        kind: { type: string, enum: [owner, tenant, dependent] }
+        moveInDate: { type: string, nullable: true }
+        active: { type: boolean }
+        createdAt: { type: string }
+      required: [id, condominiumId, name, kind, active, createdAt]
+    CreateResidentInput:
+      type: object
+      properties:
+        unitId: { type: string, nullable: true }
+        name: { type: string, minLength: 2 }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        document: { type: string, nullable: true }
+        kind: { type: string, enum: [owner, tenant, dependent] }
+        moveInDate: { type: string, nullable: true }
+        active: { type: boolean }
+      required: [name, kind]
+
+    Charge:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        unitId: { type: string, nullable: true }
+        unitLabel: { type: string, nullable: true }
+        type: { type: string, enum: [income, expense, fine] }
+        category: { type: string }
+        description: { type: string }
+        amount: { type: number }
+        dueDate: { type: string }
+        status: { type: string, enum: [pending, paid, overdue, cancelled] }
+        paidAt: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, type, category, description, amount, dueDate, status, createdAt]
+    CreateChargeInput:
+      type: object
+      properties:
+        unitId: { type: string, nullable: true }
+        type: { type: string, enum: [income, expense, fine] }
+        category: { type: string }
+        description: { type: string }
+        amount: { type: number }
+        dueDate: { type: string }
+        status: { type: string, enum: [pending, paid, overdue, cancelled] }
+      required: [type, category, description, amount, dueDate]
+    PayChargeInput:
+      type: object
+      properties:
+        amount: { type: number }
+        method: { type: string }
+        paidAt: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+      required: [amount, method]
+    Payment:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        chargeId: { type: string }
+        amount: { type: number }
+        method: { type: string }
+        paidAt: { type: string }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, chargeId, amount, method, paidAt, createdAt]
+
+    Notice:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        title: { type: string }
+        body: { type: string }
+        category: { type: string }
+        priority: { type: string, enum: [low, normal, high] }
+        publishedAt: { type: string }
+        createdAt: { type: string }
+      required: [id, condominiumId, title, body, category, priority, publishedAt, createdAt]
+    CreateNoticeInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 2 }
+        body: { type: string, minLength: 2 }
+        category: { type: string }
+        priority: { type: string, enum: [low, normal, high] }
+        publishedAt: { type: string, nullable: true }
+      required: [title, body, category, priority]
+
+    Issue:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        unitId: { type: string, nullable: true }
+        unitLabel: { type: string, nullable: true }
+        title: { type: string }
+        description: { type: string }
+        category: { type: string }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        status: { type: string, enum: [open, in_progress, resolved, closed] }
+        reportedBy: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, title, description, category, priority, status, createdAt]
+    CreateIssueInput:
+      type: object
+      properties:
+        unitId: { type: string, nullable: true }
+        title: { type: string, minLength: 2 }
+        description: { type: string }
+        category: { type: string }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        status: { type: string, enum: [open, in_progress, resolved, closed] }
+        reportedBy: { type: string, nullable: true }
+      required: [title, description, category, priority, status]
+
+    Delivery:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        unitId: { type: string, nullable: true }
+        unitLabel: { type: string, nullable: true }
+        recipient: { type: string }
+        carrier: { type: string, nullable: true }
+        trackingCode: { type: string, nullable: true }
+        status: { type: string, enum: [received, picked_up, returned] }
+        receivedAt: { type: string }
+        pickedUpAt: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, recipient, status, receivedAt, createdAt]
+    CreateDeliveryInput:
+      type: object
+      properties:
+        unitId: { type: string, nullable: true }
+        recipient: { type: string }
+        carrier: { type: string, nullable: true }
+        trackingCode: { type: string, nullable: true }
+        status: { type: string, enum: [received, picked_up, returned] }
+        receivedAt: { type: string }
+        pickedUpAt: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+      required: [recipient, status, receivedAt]
+
+    Vehicle:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        unitId: { type: string, nullable: true }
+        unitLabel: { type: string, nullable: true }
+        plate: { type: string }
+        model: { type: string, nullable: true }
+        color: { type: string, nullable: true }
+        kind: { type: string, enum: [car, motorcycle, truck, bicycle, other] }
+        ownerName: { type: string, nullable: true }
+        parkingSpot: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, plate, kind, createdAt]
+    CreateVehicleInput:
+      type: object
+      properties:
+        unitId: { type: string, nullable: true }
+        plate: { type: string }
+        model: { type: string, nullable: true }
+        color: { type: string, nullable: true }
+        kind: { type: string, enum: [car, motorcycle, truck, bicycle, other] }
+        ownerName: { type: string, nullable: true }
+        parkingSpot: { type: string, nullable: true }
+      required: [plate, kind]
+
+    Reservation:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        unitId: { type: string, nullable: true }
+        unitLabel: { type: string, nullable: true }
+        area: { type: string }
+        startsAt: { type: string }
+        endsAt: { type: string }
+        status: { type: string, enum: [pending, confirmed, cancelled] }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, area, startsAt, endsAt, status, createdAt]
+    CreateReservationInput:
+      type: object
+      properties:
+        unitId: { type: string, nullable: true }
+        area: { type: string }
+        startsAt: { type: string }
+        endsAt: { type: string }
+        status: { type: string, enum: [pending, confirmed, cancelled] }
+        notes: { type: string, nullable: true }
+      required: [area, startsAt, endsAt, status]
+
+    Document:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        title: { type: string }
+        category: { type: string }
+        url: { type: string, nullable: true }
+        sizeKb: { type: integer, nullable: true }
+        uploadedBy: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, title, category, createdAt]
+    CreateDocumentInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 2 }
+        category: { type: string }
+        url: { type: string, nullable: true }
+        sizeKb: { type: integer, nullable: true }
+        uploadedBy: { type: string, nullable: true }
+      required: [title, category]
+
+    ServiceOrder:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        title: { type: string }
+        description: { type: string }
+        supplierId: { type: string, nullable: true }
+        supplierName: { type: string, nullable: true }
+        status: { type: string, enum: [open, scheduled, in_progress, done, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        scheduledFor: { type: string, nullable: true }
+        cost: { type: number, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, title, description, status, priority, createdAt]
+    CreateServiceInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 2 }
+        description: { type: string }
+        supplierId: { type: string, nullable: true }
+        status: { type: string, enum: [open, scheduled, in_progress, done, cancelled] }
+        priority: { type: string, enum: [low, medium, high, urgent] }
+        scheduledFor: { type: string, nullable: true }
+        cost: { type: number, nullable: true }
+      required: [title, description, status, priority]
+
+    Supplier:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        name: { type: string }
+        category: { type: string }
+        contactName: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        document: { type: string, nullable: true }
+        rating: { type: number, nullable: true }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, name, category, createdAt]
+    CreateSupplierInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 2 }
+        category: { type: string }
+        contactName: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        document: { type: string, nullable: true }
+        rating: { type: number, nullable: true }
+        notes: { type: string, nullable: true }
+      required: [name, category]
+
+    Contract:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        supplierId: { type: string, nullable: true }
+        supplierName: { type: string, nullable: true }
+        title: { type: string }
+        category: { type: string }
+        startsOn: { type: string }
+        endsOn: { type: string }
+        monthlyValue: { type: number }
+        status: { type: string, enum: [active, expired, cancelled] }
+        notes: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, title, category, startsOn, endsOn, monthlyValue, status, createdAt]
+    CreateContractInput:
+      type: object
+      properties:
+        supplierId: { type: string, nullable: true }
+        title: { type: string, minLength: 2 }
+        category: { type: string }
+        startsOn: { type: string }
+        endsOn: { type: string }
+        monthlyValue: { type: number }
+        status: { type: string, enum: [active, expired, cancelled] }
+        notes: { type: string, nullable: true }
+      required: [title, category, startsOn, endsOn, monthlyValue, status]
+
+    EventItem:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        startsAt: { type: string }
+        endsAt: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        kind: { type: string }
+        createdAt: { type: string }
+      required: [id, condominiumId, title, startsAt, kind, createdAt]
+    CreateEventInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 2 }
+        description: { type: string, nullable: true }
+        startsAt: { type: string }
+        endsAt: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        kind: { type: string }
+      required: [title, startsAt, kind]
+
+    ActivityLog:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        userId: { type: string, nullable: true }
+        userName: { type: string, nullable: true }
+        action: { type: string }
+        entity: { type: string }
+        entityId: { type: string, nullable: true }
+        message: { type: string }
+        createdAt: { type: string }
+      required: [id, condominiumId, action, entity, message, createdAt]
