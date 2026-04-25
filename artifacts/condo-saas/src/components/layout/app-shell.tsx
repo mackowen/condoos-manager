@@ -1,29 +1,37 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Building, 
-  CreditCard, 
-  Bell, 
-  AlertTriangle, 
-  Package, 
-  Car, 
-  CalendarCheck, 
-  FileText, 
-  Wrench, 
-  Truck, 
-  FileSignature, 
-  CalendarDays, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Users,
+  Building,
+  CreditCard,
+  Bell,
+  AlertTriangle,
+  Package,
+  Car,
+  CalendarCheck,
+  FileText,
+  Wrench,
+  Truck,
+  FileSignature,
+  CalendarDays,
+  Settings,
   LogOut,
   Menu,
   X,
-  Activity
+  Activity,
+  ChevronLeft,
+  ChevronRight,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { useSidebarCollapsed } from "@/hooks/use-sidebar-collapsed";
+import { SidebarItem } from "./sidebar-item";
 
 const NAVIGATION = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -47,93 +55,177 @@ const NAVIGATION = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, condominium, logout } = useAuth();
   const [location] = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { collapsed, toggle } = useSidebarCollapsed();
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
-        <div className="font-bold text-lg tracking-tight text-primary">CondoOS</div>
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
-          {sidebarOpen ? <X /> : <Menu />}
+      <div className="md:hidden flex items-center justify-between p-4 border-b bg-card sticky top-0 z-30">
+        <div className="flex items-center gap-2">
+          <Building2 className="h-5 w-5 text-primary" />
+          <div className="font-bold text-lg tracking-tight text-primary">CondoOS</div>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X /> : <Menu />}
         </Button>
       </div>
 
       {/* Sidebar */}
-      <aside className={`
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        md:translate-x-0
-        fixed md:sticky top-0 left-0 z-40
-        w-64 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border
-        transition-transform duration-200 ease-in-out
-        flex flex-col
-      `}>
-        <div className="p-6 hidden md:block">
-          <div className="font-bold text-2xl tracking-tight text-sidebar-primary">CondoOS</div>
-          {condominium && (
-            <div className="mt-2 text-sm text-sidebar-foreground/70 truncate">
-              {condominium.name}
+      <aside
+        className={cn(
+          "fixed md:sticky top-0 left-0 z-40 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col transition-all duration-300 ease-in-out",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+          "md:translate-x-0",
+          collapsed ? "md:w-16" : "md:w-64",
+          "w-64",
+        )}
+      >
+        {/* Brand / collapse toggle */}
+        <div
+          className={cn(
+            "flex items-center border-b border-sidebar-border/50 transition-all",
+            collapsed ? "px-0 py-4 justify-center" : "px-5 py-4 gap-2",
+          )}
+        >
+          <div className="p-1.5 rounded-md bg-sidebar-primary/15 text-sidebar-primary shrink-0">
+            <Building2 className="h-5 w-5" />
+          </div>
+          {!collapsed && (
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-lg tracking-tight text-sidebar-primary leading-tight">
+                CondoOS
+              </div>
+              {condominium && (
+                <div className="text-[11px] text-sidebar-foreground/60 truncate leading-tight">
+                  {condominium.name}
+                </div>
+              )}
             </div>
           )}
+          {/* Desktop collapse toggle */}
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggle}
+                  className={cn(
+                    "hidden md:inline-flex h-7 w-7 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
+                    collapsed && "absolute -right-3 top-5 h-6 w-6 bg-sidebar border border-sidebar-border rounded-full shadow-sm z-10",
+                  )}
+                  aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+                >
+                  {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">
+                {collapsed ? "Expandir menu" : "Recolher menu"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+
+        <nav
+          className={cn(
+            "flex-1 overflow-y-auto overflow-x-hidden py-3 space-y-0.5",
+            collapsed ? "px-2" : "px-3",
+          )}
+        >
           {NAVIGATION.map((item) => {
-            const active = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+            const active =
+              location === item.href || (item.href !== "/" && location.startsWith(item.href));
             return (
-              <Link key={item.name} href={item.href} className="block">
-                <span className={`
-                  flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors
-                  ${active 
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
-                    : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                  }
-                `} onClick={() => setSidebarOpen(false)}>
-                  <item.icon className="h-4 w-4" />
-                  {item.name}
-                </span>
-              </Link>
+              <SidebarItem
+                key={item.name}
+                href={item.href}
+                name={item.name}
+                icon={item.icon}
+                active={active}
+                collapsed={collapsed}
+                onClick={() => setMobileOpen(false)}
+              />
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-sidebar-border">
-          <div className="flex items-center gap-3 mb-4">
-            <Avatar className="h-9 w-9 bg-sidebar-accent text-sidebar-accent-foreground">
-              <AvatarFallback>{user?.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 overflow-hidden">
-              <div className="text-sm font-medium truncate">{user?.name}</div>
-              <div className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</div>
+        <Separator className="bg-sidebar-border/50" />
+
+        {/* User footer */}
+        <div className={cn("transition-all", collapsed ? "p-2" : "p-3")}>
+          {collapsed ? (
+            <div className="flex flex-col items-center gap-2">
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Avatar className="h-9 w-9 bg-sidebar-accent text-sidebar-accent-foreground cursor-default">
+                      <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium">
+                        {user?.name?.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="text-xs">
+                    <div className="font-medium">{user?.name}</div>
+                    <div className="text-muted-foreground">{user?.email}</div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={logout}
+                      className="h-9 w-9 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                      aria-label="Sair"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="text-xs">
+                    Sair
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
-          </div>
-          <Button variant="ghost" className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent" onClick={logout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sair
-          </Button>
+          ) : (
+            <>
+              <div className="flex items-center gap-2.5 mb-2 px-1">
+                <Avatar className="h-9 w-9 bg-sidebar-accent text-sidebar-accent-foreground">
+                  <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium">
+                    {user?.name?.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{user?.name}</div>
+                  <div className="text-[11px] text-sidebar-foreground/60 truncate">{user?.email}</div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent h-9"
+                onClick={logout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </Button>
+            </>
+          )}
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        <header className="h-16 border-b bg-card flex items-center px-6 justify-between shrink-0 hidden md:flex">
-          <div className="flex-1 max-w-xl">
-            {/* Search goes here */}
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Dark mode toggle, notifications go here */}
-          </div>
-        </header>
-        <div className="flex-1 overflow-auto p-4 md:p-8">
-          {children}
-        </div>
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">{children}</div>
       </main>
 
       {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div 
+      {mobileOpen && (
+        <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setMobileOpen(false)}
         />
       )}
     </div>
