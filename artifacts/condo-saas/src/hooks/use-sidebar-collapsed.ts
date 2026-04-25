@@ -1,0 +1,27 @@
+import { useCallback, useEffect, useState } from "react";
+
+const STORAGE_KEY = "condo_sidebar_collapsed_v1";
+
+export function useSidebarCollapsed() {
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+    } catch {
+      /* noop */
+    }
+  }, [collapsed]);
+
+  const toggle = useCallback(() => setCollapsed((c) => !c), []);
+
+  return { collapsed, toggle, setCollapsed };
+}

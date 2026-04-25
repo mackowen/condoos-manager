@@ -28,13 +28,24 @@ Every entity carries a `condominiumId` FK. JWT claims include `userId`, `condomi
 ### Modules (13)
 Residents, Units, Charges (with Payments), Notices, Issues, Deliveries, Vehicles, Reservations, Documents, Service Orders, Suppliers, Contracts, Events. Plus Users, Roles (RBAC with permission keys), Activity Log, Settings, Dashboard.
 
-### Dashboard
-- Summary KPIs: units, residents, monthly income/expense/balance, delinquency rate, open issues, upcoming reservations, pending deliveries, forecast next month, health score.
-- Cashflow: 6-month rolling income/expense/balance from charges.
-- Delinquency ranking: top 10 units with overdue balances + resident name.
-- Alerts: charges due in 30 days, overdue charges, expiring contracts.
-- Recent activity feed (from activity log).
-- Global search across residents, units, charges.
+### Dashboard (Premium)
+- **Period filter**: Mês / 3 meses / Ano — drives chart windowing.
+- **KPI cards** with icons, contextual colors, deltas vs previous month, Info tooltips, drill-down via wouter `Link`. Computed cards include occupation% (from residents/units) and expiring contracts (next 60 days).
+- **Charts** (Recharts): Cashflow area, Income vs Expense bars, Financial Pressure line (deficit %), Forecast line (linear regression for next 3 months).
+- **Smart widgets**: Health score with progress bar + status (🟢🟡🔴), Top 5 inadimplência with bar visualization, automatic Insights panel (`insights.ts` derives critical/warning/info/positive items from cashflow + delinquency + issues + contracts).
+- **Operational widgets**: Notices, Open Issues, Pending Deliveries, Upcoming Reservations, Recent Activity feed.
+- **Smart alerts**: severity-coded (crítico/atenção/info), auto-sorted by priority, click to drill down to relevant page.
+- **Layout customization**: drag-and-drop reorder via `@dnd-kit`, show/hide via dropdown menu, persisted in `localStorage` under `condo_dashboard_layout_v1`.
+- **Auto-refresh**: TanStack Query `refetchInterval: 60s`, manual refresh button, "última atualização" tooltip showing relative time.
+- **Performance**: heavy widgets are `React.lazy` + `Suspense`, queries share staleTime, KPI cards memoized.
+- **Code structure**: `src/components/dashboard/{types,format,insights,period-filter,customize-menu,sortable-widget}.tsx` + `src/components/dashboard/widgets/*.tsx` for each card/chart. Layout state in `src/hooks/use-dashboard-layout.ts`.
+
+### Sidebar (Collapsible)
+- Mini-variant: `w-64` ↔ `w-16` toggle persisted in `localStorage` (`condo_sidebar_collapsed_v1`).
+- When collapsed: only icons; tooltips on hover via Radix Tooltip; user avatar and Sair button collapse to icons.
+- Mobile: drawer (sheet-like) with overlay.
+- Active item gets background + small dot indicator; smooth `transition-all duration-300`.
+- Code: `src/components/layout/app-shell.tsx` + `src/components/layout/sidebar-item.tsx` + `src/hooks/use-sidebar-collapsed.ts`.
 
 ### Charges & Payments
 - Charges marked `overdue` dynamically in list endpoints when `status=pending && dueDate < now`.
