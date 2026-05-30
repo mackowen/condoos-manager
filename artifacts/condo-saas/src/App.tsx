@@ -28,6 +28,11 @@ import Settings from "@/pages/settings";
 import Users from "@/pages/settings/users";
 import Roles from "@/pages/settings/roles";
 import ActivityLog from "@/pages/activity";
+import MarketplaceIndex from "@/pages/marketplace/index";
+import MarketplaceListing from "@/pages/marketplace/listing";
+import MarketplaceCreate from "@/pages/marketplace/create";
+import MarketplaceMyListings from "@/pages/marketplace/my-listings";
+import MarketplaceAdmin from "@/pages/marketplace/admin";
 
 const queryClient = new QueryClient();
 
@@ -130,6 +135,30 @@ function AppRouter() {
 
       <Route path="/atividades">
         {() => <ProtectedRoute component={ActivityLog} />}
+      </Route>
+
+      <Route path="/marketplace">
+        {() => <ProtectedRoute component={MarketplaceIndex} />}
+      </Route>
+
+      <Route path="/marketplace/criar">
+        {() => <ProtectedRoute component={MarketplaceCreate} />}
+      </Route>
+
+      <Route path="/marketplace/editar/:id">
+        {() => <ProtectedRoute component={MarketplaceCreate} />}
+      </Route>
+
+      <Route path="/marketplace/meus">
+        {() => <ProtectedRoute component={MarketplaceMyListings} />}
+      </Route>
+
+      <Route path="/marketplace/admin">
+        {() => <ProtectedRoute component={MarketplaceAdmin} />}
+      </Route>
+
+      <Route path="/marketplace/:id">
+        {() => <ProtectedRoute component={MarketplaceListing} />}
       </Route>
 
       <Route component={NotFound} />

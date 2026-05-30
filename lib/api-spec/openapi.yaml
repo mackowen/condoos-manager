@@ -29,6 +29,8 @@ tags:
   - name: contracts
   - name: events
   - name: logs
+  - name: marketplace
+  - name: marketplace
 
 paths:
   /healthz:
@@ -1062,6 +1064,377 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/ActivityLog" }
 
+  # ---- MARKETPLACE ----
+  /marketplace/listings:
+    get:
+      operationId: listMarketplaceListings
+      tags: [marketplace]
+      summary: List active marketplace listings
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: categoryId
+          schema: { type: string }
+        - in: query
+          name: type
+          schema: { type: string, enum: [product, service] }
+        - in: query
+          name: sort
+          schema: { type: string, enum: [recent, views, highlighted] }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MarketplaceListing" }
+    post:
+      operationId: createMarketplaceListing
+      tags: [marketplace]
+      summary: Create a listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateMarketplaceListingInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceListing" }
+
+  /marketplace/listings/{id}:
+    get:
+      operationId: getMarketplaceListing
+      tags: [marketplace]
+      summary: Get listing detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceListing" }
+    put:
+      operationId: updateMarketplaceListing
+      tags: [marketplace]
+      summary: Update listing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateMarketplaceListingInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceListing" }
+    delete:
+      operationId: deleteMarketplaceListing
+      tags: [marketplace]
+      summary: Delete listing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: No content
+
+  /marketplace/listings/{id}/images:
+    post:
+      operationId: addMarketplaceImage
+      tags: [marketplace]
+      summary: Add image to listing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddMarketplaceImageInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceImage" }
+
+  /marketplace/listings/{id}/images/{imageId}:
+    delete:
+      operationId: deleteMarketplaceImage
+      tags: [marketplace]
+      summary: Delete listing image
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: path
+          name: imageId
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: No content
+
+  /marketplace/listings/{id}/favorite:
+    get:
+      operationId: checkFavorite
+      tags: [marketplace]
+      summary: Check if favorited
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceFavoriteStatus" }
+    post:
+      operationId: toggleFavorite
+      tags: [marketplace]
+      summary: Toggle favorite
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceFavoriteStatus" }
+
+  /marketplace/listings/{id}/report:
+    post:
+      operationId: reportListing
+      tags: [marketplace]
+      summary: Report a listing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateMarketplaceReportInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceReport" }
+
+  /marketplace/my-listings:
+    get:
+      operationId: listMyListings
+      tags: [marketplace]
+      summary: List current user listings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MarketplaceListing" }
+
+  /marketplace/categories:
+    get:
+      operationId: listMarketplaceCategories
+      tags: [marketplace]
+      summary: List categories
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MarketplaceCategory" }
+    post:
+      operationId: createMarketplaceCategory
+      tags: [marketplace]
+      summary: Create category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateMarketplaceCategoryInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceCategory" }
+
+  /marketplace/categories/{id}:
+    delete:
+      operationId: deleteMarketplaceCategory
+      tags: [marketplace]
+      summary: Delete category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: No content
+
+  /marketplace/admin/listings:
+    get:
+      operationId: listAdminMarketplaceListings
+      tags: [marketplace]
+      summary: List all listings for admin
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MarketplaceListing" }
+
+  /marketplace/admin/listings/{id}/approve:
+    put:
+      operationId: approveMarketplaceListing
+      tags: [marketplace]
+      summary: Approve listing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceListing" }
+
+  /marketplace/admin/listings/{id}/reject:
+    put:
+      operationId: rejectMarketplaceListing
+      tags: [marketplace]
+      summary: Reject listing
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceListing" }
+
+  /marketplace/admin/listings/{id}/highlight:
+    put:
+      operationId: toggleHighlightListing
+      tags: [marketplace]
+      summary: Toggle highlight
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceListing" }
+
+  /marketplace/admin/reports:
+    get:
+      operationId: listMarketplaceReports
+      tags: [marketplace]
+      summary: List reports
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/MarketplaceReport" }
+
+  /marketplace/admin/reports/{id}/review:
+    put:
+      operationId: reviewMarketplaceReport
+      tags: [marketplace]
+      summary: Review report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceReport" }
+
+  /marketplace/settings:
+    get:
+      operationId: getMarketplaceSettings
+      tags: [marketplace]
+      summary: Get marketplace settings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceSettings" }
+    put:
+      operationId: updateMarketplaceSettings
+      tags: [marketplace]
+      summary: Update marketplace settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateMarketplaceSettingsInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MarketplaceSettings" }
+
+
 components:
   schemas:
     HealthStatus:
@@ -1622,3 +1995,135 @@ components:
         message: { type: string }
         createdAt: { type: string }
       required: [id, condominiumId, action, entity, message, createdAt]
+
+    MarketplaceCategory:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        name: { type: string }
+        icon: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, condominiumId, name, createdAt]
+
+    MarketplaceImage:
+      type: object
+      properties:
+        id: { type: string }
+        listingId: { type: string }
+        url: { type: string }
+        order: { type: number }
+        createdAt: { type: string }
+      required: [id, listingId, url, order, createdAt]
+
+    MarketplaceListing:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        residentId: { type: string, nullable: true }
+        residentName: { type: string, nullable: true }
+        categoryId: { type: string, nullable: true }
+        categoryName: { type: string, nullable: true }
+        title: { type: string }
+        description: { type: string }
+        price: { type: number, nullable: true }
+        type: { type: string, enum: [product, service] }
+        status: { type: string, enum: [pending, active, rejected, inactive] }
+        isHighlighted: { type: boolean }
+        views: { type: number }
+        contactInfo: { type: string, nullable: true }
+        images:
+          type: array
+          items: { $ref: "#/components/schemas/MarketplaceImage" }
+        isFavorited: { type: boolean }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+      required: [id, condominiumId, title, description, type, status, isHighlighted, views, images, isFavorited, createdAt, updatedAt]
+
+    MarketplaceFavoriteStatus:
+      type: object
+      properties:
+        isFavorited: { type: boolean }
+      required: [isFavorited]
+
+    MarketplaceReport:
+      type: object
+      properties:
+        id: { type: string }
+        listingId: { type: string }
+        listingTitle: { type: string, nullable: true }
+        userId: { type: string }
+        condominiumId: { type: string }
+        reason: { type: string }
+        status: { type: string, enum: [pending, reviewed] }
+        createdAt: { type: string }
+      required: [id, listingId, userId, condominiumId, reason, status, createdAt]
+
+    MarketplaceSettings:
+      type: object
+      properties:
+        id: { type: string }
+        condominiumId: { type: string }
+        enabled: { type: boolean }
+        requireApproval: { type: boolean }
+        maxListingsPerUser: { type: number }
+        allowProducts: { type: boolean }
+        allowServices: { type: boolean }
+        allowImages: { type: boolean }
+        maxImagesPerListing: { type: number }
+        createdAt: { type: string }
+      required: [id, condominiumId, enabled, requireApproval, maxListingsPerUser, allowProducts, allowServices, allowImages, maxImagesPerListing, createdAt]
+
+    CreateMarketplaceListingInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 3 }
+        description: { type: string, minLength: 10 }
+        price: { type: number, nullable: true }
+        type: { type: string, enum: [product, service] }
+        categoryId: { type: string, nullable: true }
+        contactInfo: { type: string, nullable: true }
+      required: [title, description, type]
+
+    UpdateMarketplaceListingInput:
+      type: object
+      properties:
+        title: { type: string, minLength: 3 }
+        description: { type: string, minLength: 10 }
+        price: { type: number, nullable: true }
+        type: { type: string, enum: [product, service] }
+        categoryId: { type: string, nullable: true }
+        contactInfo: { type: string, nullable: true }
+        status: { type: string, enum: [inactive] }
+
+    AddMarketplaceImageInput:
+      type: object
+      properties:
+        url: { type: string, minLength: 5 }
+        order: { type: number }
+      required: [url]
+
+    CreateMarketplaceCategoryInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 2 }
+        icon: { type: string, nullable: true }
+      required: [name]
+
+    CreateMarketplaceReportInput:
+      type: object
+      properties:
+        reason: { type: string, minLength: 5 }
+      required: [reason]
+
+    UpdateMarketplaceSettingsInput:
+      type: object
+      properties:
+        enabled: { type: boolean }
+        requireApproval: { type: boolean }
+        maxListingsPerUser: { type: number }
+        allowProducts: { type: boolean }
+        allowServices: { type: boolean }
+        allowImages: { type: boolean }
+        maxImagesPerListing: { type: number }

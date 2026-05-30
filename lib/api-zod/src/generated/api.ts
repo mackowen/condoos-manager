@@ -1470,3 +1470,502 @@ export const ListLogsResponseItem = zod.object({
   createdAt: zod.string(),
 });
 export const ListLogsResponse = zod.array(ListLogsResponseItem);
+
+/**
+ * @summary List active marketplace listings
+ */
+export const ListMarketplaceListingsQueryParams = zod.object({
+  search: zod.coerce.string().optional(),
+  categoryId: zod.coerce.string().optional(),
+  type: zod.enum(["product", "service"]).optional(),
+  sort: zod.enum(["recent", "views", "highlighted"]).optional(),
+});
+
+export const ListMarketplaceListingsResponseItem = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+export const ListMarketplaceListingsResponse = zod.array(
+  ListMarketplaceListingsResponseItem,
+);
+
+/**
+ * @summary Create a listing
+ */
+export const createMarketplaceListingBodyTitleMin = 3;
+
+export const createMarketplaceListingBodyDescriptionMin = 10;
+
+export const CreateMarketplaceListingBody = zod.object({
+  title: zod.string().min(createMarketplaceListingBodyTitleMin),
+  description: zod.string().min(createMarketplaceListingBodyDescriptionMin),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  categoryId: zod.string().nullish(),
+  contactInfo: zod.string().nullish(),
+});
+
+/**
+ * @summary Get listing detail
+ */
+export const GetMarketplaceListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetMarketplaceListingResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Update listing
+ */
+export const UpdateMarketplaceListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const updateMarketplaceListingBodyTitleMin = 3;
+
+export const updateMarketplaceListingBodyDescriptionMin = 10;
+
+export const UpdateMarketplaceListingBody = zod.object({
+  title: zod.string().min(updateMarketplaceListingBodyTitleMin).optional(),
+  description: zod
+    .string()
+    .min(updateMarketplaceListingBodyDescriptionMin)
+    .optional(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]).optional(),
+  categoryId: zod.string().nullish(),
+  contactInfo: zod.string().nullish(),
+  status: zod.enum(["inactive"]).optional(),
+});
+
+export const UpdateMarketplaceListingResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Delete listing
+ */
+export const DeleteMarketplaceListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary Add image to listing
+ */
+export const AddMarketplaceImageParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const addMarketplaceImageBodyUrlMin = 5;
+
+export const AddMarketplaceImageBody = zod.object({
+  url: zod.string().min(addMarketplaceImageBodyUrlMin),
+  order: zod.number().optional(),
+});
+
+/**
+ * @summary Delete listing image
+ */
+export const DeleteMarketplaceImageParams = zod.object({
+  id: zod.coerce.string(),
+  imageId: zod.coerce.string(),
+});
+
+/**
+ * @summary Check if favorited
+ */
+export const CheckFavoriteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const CheckFavoriteResponse = zod.object({
+  isFavorited: zod.boolean(),
+});
+
+/**
+ * @summary Toggle favorite
+ */
+export const ToggleFavoriteParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ToggleFavoriteResponse = zod.object({
+  isFavorited: zod.boolean(),
+});
+
+/**
+ * @summary Report a listing
+ */
+export const ReportListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const reportListingBodyReasonMin = 5;
+
+export const ReportListingBody = zod.object({
+  reason: zod.string().min(reportListingBodyReasonMin),
+});
+
+/**
+ * @summary List current user listings
+ */
+export const ListMyListingsResponseItem = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+export const ListMyListingsResponse = zod.array(ListMyListingsResponseItem);
+
+/**
+ * @summary List categories
+ */
+export const ListMarketplaceCategoriesResponseItem = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  name: zod.string(),
+  icon: zod.string().nullish(),
+  createdAt: zod.string(),
+});
+export const ListMarketplaceCategoriesResponse = zod.array(
+  ListMarketplaceCategoriesResponseItem,
+);
+
+/**
+ * @summary Create category
+ */
+export const createMarketplaceCategoryBodyNameMin = 2;
+
+export const CreateMarketplaceCategoryBody = zod.object({
+  name: zod.string().min(createMarketplaceCategoryBodyNameMin),
+  icon: zod.string().nullish(),
+});
+
+/**
+ * @summary Delete category
+ */
+export const DeleteMarketplaceCategoryParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+/**
+ * @summary List all listings for admin
+ */
+export const ListAdminMarketplaceListingsQueryParams = zod.object({
+  status: zod.coerce.string().optional(),
+});
+
+export const ListAdminMarketplaceListingsResponseItem = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+export const ListAdminMarketplaceListingsResponse = zod.array(
+  ListAdminMarketplaceListingsResponseItem,
+);
+
+/**
+ * @summary Approve listing
+ */
+export const ApproveMarketplaceListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ApproveMarketplaceListingResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Reject listing
+ */
+export const RejectMarketplaceListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const RejectMarketplaceListingResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary Toggle highlight
+ */
+export const ToggleHighlightListingParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ToggleHighlightListingResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  residentId: zod.string().nullish(),
+  residentName: zod.string().nullish(),
+  categoryId: zod.string().nullish(),
+  categoryName: zod.string().nullish(),
+  title: zod.string(),
+  description: zod.string(),
+  price: zod.number().nullish(),
+  type: zod.enum(["product", "service"]),
+  status: zod.enum(["pending", "active", "rejected", "inactive"]),
+  isHighlighted: zod.boolean(),
+  views: zod.number(),
+  contactInfo: zod.string().nullish(),
+  images: zod.array(
+    zod.object({
+      id: zod.string(),
+      listingId: zod.string(),
+      url: zod.string(),
+      order: zod.number(),
+      createdAt: zod.string(),
+    }),
+  ),
+  isFavorited: zod.boolean(),
+  createdAt: zod.string(),
+  updatedAt: zod.string(),
+});
+
+/**
+ * @summary List reports
+ */
+export const ListMarketplaceReportsResponseItem = zod.object({
+  id: zod.string(),
+  listingId: zod.string(),
+  listingTitle: zod.string().nullish(),
+  userId: zod.string(),
+  condominiumId: zod.string(),
+  reason: zod.string(),
+  status: zod.enum(["pending", "reviewed"]),
+  createdAt: zod.string(),
+});
+export const ListMarketplaceReportsResponse = zod.array(
+  ListMarketplaceReportsResponseItem,
+);
+
+/**
+ * @summary Review report
+ */
+export const ReviewMarketplaceReportParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const ReviewMarketplaceReportResponse = zod.object({
+  id: zod.string(),
+  listingId: zod.string(),
+  listingTitle: zod.string().nullish(),
+  userId: zod.string(),
+  condominiumId: zod.string(),
+  reason: zod.string(),
+  status: zod.enum(["pending", "reviewed"]),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Get marketplace settings
+ */
+export const GetMarketplaceSettingsResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  enabled: zod.boolean(),
+  requireApproval: zod.boolean(),
+  maxListingsPerUser: zod.number(),
+  allowProducts: zod.boolean(),
+  allowServices: zod.boolean(),
+  allowImages: zod.boolean(),
+  maxImagesPerListing: zod.number(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Update marketplace settings
+ */
+export const UpdateMarketplaceSettingsBody = zod.object({
+  enabled: zod.boolean().optional(),
+  requireApproval: zod.boolean().optional(),
+  maxListingsPerUser: zod.number().optional(),
+  allowProducts: zod.boolean().optional(),
+  allowServices: zod.boolean().optional(),
+  allowImages: zod.boolean().optional(),
+  maxImagesPerListing: zod.number().optional(),
+});
+
+export const UpdateMarketplaceSettingsResponse = zod.object({
+  id: zod.string(),
+  condominiumId: zod.string(),
+  enabled: zod.boolean(),
+  requireApproval: zod.boolean(),
+  maxListingsPerUser: zod.number(),
+  allowProducts: zod.boolean(),
+  allowServices: zod.boolean(),
+  allowImages: zod.boolean(),
+  maxImagesPerListing: zod.number(),
+  createdAt: zod.string(),
+});
