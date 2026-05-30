@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
+import { ThemeProvider } from "@/contexts/theme-context";
 import { AppShell } from "@/components/layout/app-shell";
 
 // Pages
@@ -169,14 +170,16 @@ function AppRouter() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <AuthProvider>
-          <TooltipProvider>
-            <AppRouter />
-            <Toaster />
-          </TooltipProvider>
-        </AuthProvider>
-      </WouterRouter>
+      <ThemeProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <AuthProvider>
+            <TooltipProvider>
+              <AppRouter />
+              <Toaster />
+            </TooltipProvider>
+          </AuthProvider>
+        </WouterRouter>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

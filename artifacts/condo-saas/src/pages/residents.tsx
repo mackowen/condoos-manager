@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Plus, MoreHorizontal, Pencil, Trash2, Users } from "lucide-react";
+import { Search, Plus, MoreHorizontal, Pencil, Trash2, Users, Download } from "lucide-react";
+import { downloadCSV } from "@/lib/export";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -183,10 +184,30 @@ export default function Residents() {
           <h1 className="text-3xl font-bold tracking-tight">Moradores</h1>
           <p className="text-muted-foreground">Gerencie proprietários, inquilinos e dependentes.</p>
         </div>
-        <Button onClick={openCreateDialog}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Morador
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const rows = (residents ?? []).map((r) => ({
+                Nome: r.name,
+                Email: r.email ?? "",
+                Telefone: r.phone ?? "",
+                Tipo: r.kind === "owner" ? "Proprietário" : r.kind === "tenant" ? "Inquilino" : "Dependente",
+                Unidade: r.unitId ?? "",
+                Ativo: r.active ? "Sim" : "Não",
+              }));
+              downloadCSV(rows, "moradores");
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Morador
+          </Button>
+        </div>
       </div>
 
       <Card>

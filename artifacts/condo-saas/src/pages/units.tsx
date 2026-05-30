@@ -12,7 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Plus, MoreHorizontal, Pencil, Trash2, Home } from "lucide-react";
+import { Search, Plus, MoreHorizontal, Pencil, Trash2, Home, Download } from "lucide-react";
+import { downloadCSV } from "@/lib/export";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -169,10 +170,31 @@ export default function Units() {
           <h1 className="text-3xl font-bold tracking-tight">Unidades</h1>
           <p className="text-muted-foreground">Gerencie os apartamentos e blocos do condomínio.</p>
         </div>
-        <Button onClick={openCreateDialog}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Unidade
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const rows = (units ?? []).map((u) => ({
+                Bloco: u.block ?? "",
+                Número: u.number,
+                Andar: u.floor ?? "",
+                Tipo: u.type ?? "",
+                "Área (m²)": u.sizeM2 ?? "",
+                Vagas: u.parkingSpots ?? 0,
+                Proprietário: u.ownerName ?? "",
+              }));
+              downloadCSV(rows, "unidades");
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Unidade
+          </Button>
+        </div>
       </div>
 
       <Card>

@@ -20,6 +20,7 @@ import contractsRouter from "./contracts";
 import eventsRouter from "./events";
 import logsRouter from "./logs";
 import marketplaceRouter from "./marketplace";
+import apiKeysRouter from "./api-keys";
 
 const router: IRouter = Router();
 
@@ -45,5 +46,6 @@ router.use(contractsRouter);
 router.use(eventsRouter);
 router.use(logsRouter);
 router.use(marketplaceRouter);
+router.use(apiKeysRouter);
 
 export default router;
