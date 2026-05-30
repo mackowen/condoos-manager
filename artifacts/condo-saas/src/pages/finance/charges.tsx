@@ -12,7 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CreditCard, Plus, MoreHorizontal, Pencil, Trash2, CheckCircle2 } from "lucide-react";
+import { CreditCard, Plus, MoreHorizontal, Pencil, Trash2, CheckCircle2, Download } from "lucide-react";
+import { downloadCSV } from "@/lib/export";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -255,10 +256,31 @@ export default function Charges() {
           <h1 className="text-3xl font-bold tracking-tight">Cobranças</h1>
           <p className="text-muted-foreground">Gerencie receitas, despesas e multas.</p>
         </div>
-        <Button onClick={openCreateDialog}>
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Cobrança
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const rows = (charges ?? []).map((c) => ({
+                Categoria: c.category,
+                Descrição: c.description,
+                Tipo: c.type === "income" ? "Receita" : "Despesa",
+                Valor: c.amount,
+                Vencimento: c.dueDate ? c.dueDate.substring(0, 10) : "",
+                Status: c.status === "paid" ? "Pago" : c.status === "overdue" ? "Em atraso" : "Pendente",
+                "Pago em": c.paidAt ? c.paidAt.substring(0, 10) : "",
+              }));
+              downloadCSV(rows, "cobrancas");
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+          <Button onClick={openCreateDialog}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Cobrança
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
