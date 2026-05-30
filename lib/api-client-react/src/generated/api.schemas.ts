@@ -741,6 +741,170 @@ export interface ActivityLog {
   createdAt: string;
 }
 
+export interface MarketplaceCategory {
+  id: string;
+  condominiumId: string;
+  name: string;
+  icon?: string | null;
+  createdAt: string;
+}
+
+export interface MarketplaceImage {
+  id: string;
+  listingId: string;
+  url: string;
+  order: number;
+  createdAt: string;
+}
+
+export type MarketplaceListingType =
+  (typeof MarketplaceListingType)[keyof typeof MarketplaceListingType];
+
+export const MarketplaceListingType = {
+  product: "product",
+  service: "service",
+} as const;
+
+export type MarketplaceListingStatus =
+  (typeof MarketplaceListingStatus)[keyof typeof MarketplaceListingStatus];
+
+export const MarketplaceListingStatus = {
+  pending: "pending",
+  active: "active",
+  rejected: "rejected",
+  inactive: "inactive",
+} as const;
+
+export interface MarketplaceListing {
+  id: string;
+  condominiumId: string;
+  residentId?: string | null;
+  residentName?: string | null;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  title: string;
+  description: string;
+  price?: number | null;
+  type: MarketplaceListingType;
+  status: MarketplaceListingStatus;
+  isHighlighted: boolean;
+  views: number;
+  contactInfo?: string | null;
+  images: MarketplaceImage[];
+  isFavorited: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MarketplaceFavoriteStatus {
+  isFavorited: boolean;
+}
+
+export type MarketplaceReportStatus =
+  (typeof MarketplaceReportStatus)[keyof typeof MarketplaceReportStatus];
+
+export const MarketplaceReportStatus = {
+  pending: "pending",
+  reviewed: "reviewed",
+} as const;
+
+export interface MarketplaceReport {
+  id: string;
+  listingId: string;
+  listingTitle?: string | null;
+  userId: string;
+  condominiumId: string;
+  reason: string;
+  status: MarketplaceReportStatus;
+  createdAt: string;
+}
+
+export interface MarketplaceSettings {
+  id: string;
+  condominiumId: string;
+  enabled: boolean;
+  requireApproval: boolean;
+  maxListingsPerUser: number;
+  allowProducts: boolean;
+  allowServices: boolean;
+  allowImages: boolean;
+  maxImagesPerListing: number;
+  createdAt: string;
+}
+
+export type CreateMarketplaceListingInputType =
+  (typeof CreateMarketplaceListingInputType)[keyof typeof CreateMarketplaceListingInputType];
+
+export const CreateMarketplaceListingInputType = {
+  product: "product",
+  service: "service",
+} as const;
+
+export interface CreateMarketplaceListingInput {
+  /** @minLength 3 */
+  title: string;
+  /** @minLength 10 */
+  description: string;
+  price?: number | null;
+  type: CreateMarketplaceListingInputType;
+  categoryId?: string | null;
+  contactInfo?: string | null;
+}
+
+export type UpdateMarketplaceListingInputType =
+  (typeof UpdateMarketplaceListingInputType)[keyof typeof UpdateMarketplaceListingInputType];
+
+export const UpdateMarketplaceListingInputType = {
+  product: "product",
+  service: "service",
+} as const;
+
+export type UpdateMarketplaceListingInputStatus =
+  (typeof UpdateMarketplaceListingInputStatus)[keyof typeof UpdateMarketplaceListingInputStatus];
+
+export const UpdateMarketplaceListingInputStatus = {
+  inactive: "inactive",
+} as const;
+
+export interface UpdateMarketplaceListingInput {
+  /** @minLength 3 */
+  title?: string;
+  /** @minLength 10 */
+  description?: string;
+  price?: number | null;
+  type?: UpdateMarketplaceListingInputType;
+  categoryId?: string | null;
+  contactInfo?: string | null;
+  status?: UpdateMarketplaceListingInputStatus;
+}
+
+export interface AddMarketplaceImageInput {
+  /** @minLength 5 */
+  url: string;
+  order?: number;
+}
+
+export interface CreateMarketplaceCategoryInput {
+  /** @minLength 2 */
+  name: string;
+  icon?: string | null;
+}
+
+export interface CreateMarketplaceReportInput {
+  /** @minLength 5 */
+  reason: string;
+}
+
+export interface UpdateMarketplaceSettingsInput {
+  enabled?: boolean;
+  requireApproval?: boolean;
+  maxListingsPerUser?: number;
+  allowProducts?: boolean;
+  allowServices?: boolean;
+  allowImages?: boolean;
+  maxImagesPerListing?: number;
+}
+
 export type ListUsersParams = {
   search?: string;
 };
@@ -785,3 +949,31 @@ export const ListChargesType = {
   expense: "expense",
   fine: "fine",
 } as const;
+
+export type ListMarketplaceListingsParams = {
+  search?: string;
+  categoryId?: string;
+  type?: ListMarketplaceListingsType;
+  sort?: ListMarketplaceListingsSort;
+};
+
+export type ListMarketplaceListingsType =
+  (typeof ListMarketplaceListingsType)[keyof typeof ListMarketplaceListingsType];
+
+export const ListMarketplaceListingsType = {
+  product: "product",
+  service: "service",
+} as const;
+
+export type ListMarketplaceListingsSort =
+  (typeof ListMarketplaceListingsSort)[keyof typeof ListMarketplaceListingsSort];
+
+export const ListMarketplaceListingsSort = {
+  recent: "recent",
+  views: "views",
+  highlighted: "highlighted",
+} as const;
+
+export type ListAdminMarketplaceListingsParams = {
+  status?: string;
+};

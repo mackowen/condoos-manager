@@ -1,0 +1,3 @@
+- [Express 5 req.params typing](express5-params.md) — `const { id } = req.params` gives `string | string[]`; must cast with `as string`.
+- [Drizzle dynamic conditions](drizzle-conditions.md) — building `conditions[]` + `and(...conditions)` spread fails; use inline `and(cond1, search ? or(...) : undefined, ...)`.
+- [Zod v4 zodResolver](zod-v4-resolver.md) — `@hookform/resolvers/zod` expects zod v3 types; `ZodObject<..., $strip>` and `ZodUnion` both fail; cast as `zodResolver(schema as never)`.

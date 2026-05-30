@@ -18,6 +18,9 @@ import {
   contractsTable,
   eventsTable,
   activityLogsTable,
+  marketplaceCategoriesTable,
+  marketplaceListingsTable,
+  marketplaceSettingsTable,
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "./lib/auth";
@@ -639,6 +642,121 @@ async function seedCondominium(opts: {
       action: "create",
       entity: "delivery",
       message: "Encomenda Mercado Livre registrada",
+    },
+  ]);
+
+  // Marketplace
+  await db.insert(marketplaceSettingsTable).values({
+    condominiumId: cond.id,
+    enabled: true,
+    requireApproval: false,
+    allowProducts: true,
+    allowServices: true,
+    maxListingsPerUser: 10,
+    maxImagesPerListing: 5,
+  }).onConflictDoNothing();
+
+  const [catEletro, catMoveis, catServicos, catEsportes, catInfantil] = await db
+    .insert(marketplaceCategoriesTable)
+    .values([
+      { condominiumId: cond.id, name: "Eletrônicos", icon: "📱" },
+      { condominiumId: cond.id, name: "Móveis e Decoração", icon: "🛋️" },
+      { condominiumId: cond.id, name: "Serviços", icon: "🔧" },
+      { condominiumId: cond.id, name: "Esportes", icon: "⚽" },
+      { condominiumId: cond.id, name: "Infantil", icon: "🧸" },
+    ])
+    .returning();
+
+  await db.insert(marketplaceListingsTable).values([
+    {
+      condominiumId: cond.id,
+      residentId: admin.id,
+      residentName: admin.email,
+      title: "Smart TV Samsung 50\" 4K",
+      description: "Televisão em ótimo estado, 2 anos de uso. Controle original, sem arranhões. Retirada no apartamento.",
+      price: "1800.00",
+      type: "product",
+      status: "active",
+      categoryId: catEletro.id,
+      categoryName: catEletro.name,
+      contactInfo: "WhatsApp: (11) 99999-0001",
+      views: 14,
+      isHighlighted: true,
+    },
+    {
+      condominiumId: cond.id,
+      residentId: admin.id,
+      residentName: admin.email,
+      title: "Sofá 3 lugares cinza",
+      description: "Sofá retrátil com chaise em tecido cinza claro. Excelente estado. Comprado há 1 ano.",
+      price: "2200.00",
+      type: "product",
+      status: "active",
+      categoryId: catMoveis.id,
+      categoryName: catMoveis.name,
+      contactInfo: "Ligar para o apto 204",
+      views: 8,
+      isHighlighted: false,
+    },
+    {
+      condominiumId: cond.id,
+      residentId: admin.id,
+      residentName: admin.email,
+      title: "Aulas de inglês — nativo americano",
+      description: "Ofereço aulas de inglês individuais ou em grupo. 15 anos de experiência. Valores a combinar.",
+      price: null,
+      type: "service",
+      status: "active",
+      categoryId: catServicos.id,
+      categoryName: catServicos.name,
+      contactInfo: "WhatsApp: (11) 98765-4321",
+      views: 22,
+      isHighlighted: false,
+    },
+    {
+      condominiumId: cond.id,
+      residentId: admin.id,
+      residentName: admin.email,
+      title: "Bicicleta MTB Caloi Explorer",
+      description: "Bicicleta aro 29 com câmbio Shimano 21v. Usada aos fins de semana, pneus novos.",
+      price: "950.00",
+      type: "product",
+      status: "active",
+      categoryId: catEsportes.id,
+      categoryName: catEsportes.name,
+      contactInfo: "Contatar pelo interfone — apto 307",
+      views: 5,
+      isHighlighted: false,
+    },
+    {
+      condominiumId: cond.id,
+      residentId: admin.id,
+      residentName: admin.email,
+      title: "Kit berço + cômoda infantil",
+      description: "Berço convertível em mini cama + cômoda 4 gavetas. Cor branca, marca Cia do Bebê. Estado impecável.",
+      price: "1100.00",
+      type: "product",
+      status: "active",
+      categoryId: catInfantil.id,
+      categoryName: catInfantil.name,
+      contactInfo: "WhatsApp: (11) 91234-5678",
+      views: 11,
+      isHighlighted: false,
+    },
+    {
+      condominiumId: cond.id,
+      residentId: admin.id,
+      residentName: admin.email,
+      title: "Serviço de Faxina e Limpeza",
+      description: "Ofereço serviço de faxina completa para apartamentos. Produtos por conta do contratante. Agenda disponível.",
+      price: "150.00",
+      type: "service",
+      status: "active",
+      categoryId: catServicos.id,
+      categoryName: catServicos.name,
+      contactInfo: "WhatsApp: (11) 97654-3210",
+      views: 31,
+      isHighlighted: true,
     },
   ]);
 

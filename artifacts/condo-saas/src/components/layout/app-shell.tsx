@@ -23,6 +23,7 @@ import {
   Activity,
   ChevronLeft,
   ChevronRight,
+  ShoppingBag,
   Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ const NAVIGATION = [
   { name: "Fornecedores", href: "/fornecedores", icon: Truck },
   { name: "Contratos", href: "/contratos", icon: FileSignature },
   { name: "Agenda", href: "/agenda", icon: CalendarDays },
+  { name: "Marketplace", href: "/marketplace", icon: ShoppingBag },
   { name: "Atividades", href: "/atividades", icon: Activity },
   { name: "Configurações", href: "/configuracoes", icon: Settings },
 ];
